@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LYN CHAT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto+Mono:wght@300;400;700&display=swap');
+        
+        body {
+            font-family: 'Roboto Mono', monospace;
+            background-color: #0a0a0a;
+            color: #00ff41;
+            overflow-x: hidden;
+        }
+        
+        .cyberpunk-font {
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .cyberpunk-box {
+            border: 1px solid #00ff41;
+            box-shadow: 0 0 10px #00ff41, 
+                        inset 0 0 10px #00ff41;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .cyberpunk-box::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #00ff41, #008f11, #003b00, #00ff41);
+            background-size: 400%;
+            z-index: -1;
+            animation: borderAnimation 20s linear infinite;
+            opacity: 0.7;
+        }
+        
+        @keyframes borderAnimation {
+            0% {
+                background-position: 0 0;
+            }
+            50% {
+                background-position: 400% 0;
+            }
+            100% {
+                background-position: 0 0;
+            }
+        }
+        
+        .cyberpunk-input {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #00ff41;
+            color: #00ff41;
+            padding: 10px;
+            font-family: 'Roboto Mono', monospace;
+        }
+        
+        .cyberpunk-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px #00ff41;
+        }
+        
+        .cyberpunk-btn {
+            background: linear-gradient(45deg, #003b00, #008f11);
+            color: #00ff41;
+            border: 1px solid #00ff41;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+        
+        .cyberpunk-btn:hover {
+            background: linear-gradient(45deg, #008f11, #00ff41);
+            box-shadow: 0 0 15px #00ff41;
+            transform: translateY(-2px);
+        }
+        
+        .cyberpunk-btn:active {
+            transform: translateY(0);
+        }
+        
+        .cyberpunk-scrollbar::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        .cyberpunk-scrollbar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        .cyberpunk-scrollbar::-webkit-scrollbar-thumb {
+            background: #00ff41;
+            border-radius: 5px;
+        }
+        
+        .scanline {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 255, 65, 0.1) 0%,
+                rgba(0, 255, 65, 0) 10%
+            );
+            background-size: 100% 8px;
+            animation: scanline 8s linear infinite;
+            pointer-events: none;
+            z-index: 10;
+        }
+        
+        @keyframes scanline {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 0 100%;
+            }
+        }
+        
+        .glitch {
+            position: relative;
+        }
+        
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.8;
+        }
+        
+        .glitch::before {
+            color: #0ff;
+            z-index: -1;
+            animation: glitch-effect 3s infinite;
+        }
+        
+        .glitch::after {
+            color: #f0f;
+            z-index: -2;
+            animation: glitch-effect 2s infinite reverse;
+        }
+        
+        @keyframes glitch-effect {
+            0% {
+                transform: translate(0);
+            }
+            20% {
+                transform: translate(-3px, 3px);
+            }
+            40% {
+                transform: translate(-3px, -3px);
+            }
+            60% {
+                transform: translate(3px, 3px);
+            }
+            80% {
+                transform: translate(3px, -3px);
+            }
+            100% {
+                transform: translate(0);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+        
+        .terminal-cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background-color: #00ff41;
+            animation: blink 1s step-end infinite;
+        }
+        
+        @keyframes blink {
+            from, to {
+                background-color: transparent;
+            }
+            50% {
+                background-color: #00ff41;
+            }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="scanline"></div>
+    
+    <!-- Login Screen -->
+    <div id="loginScreen" class="cyberpunk-box w-full max-w-md p-8 rounded-lg relative overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-90"></div>
+        <div class="relative z-10">
+            <h1 class="cyberpunk-font text-3xl md:text-4xl text-center mb-6 glitch" data-text="LYNCHAT 2.0">LYNCHAT 2.0</h1>
+            
+            <div class="mb-6">
+                <label for="nickname" class="block text-sm mb-2">ENTER YOUR NICKNAME</label>
+                <input type="text" id="nickname" class="cyberpunk-input w-full p-3 rounded" placeholder="HACKER_01">
+            </div>
+            
+            <div class="mb-6">
+                <label class="block text-sm mb-2">FOLLOW OUR INSTAGRAM</label>
+                <div class="flex items-center cyberpunk-box p-3">
+                    <i class="fab fa-instagram text-xl mr-3 text-purple-400"></i>
+                    <span class="flex-1">@exvisuites</span>
+                    <button id="verifyBtn" class="cyberpunk-btn px-3 py-1 rounded text-xs">
+                        VERIFY
+                    </button>
+                </div>
+                <div id="followStatus" class="text-xs mt-2 hidden">
+                    <i class="fas fa-check-circle text-green-400 mr-1"></i>
+                    <span>FOLLOW VERIFIED</span>
+                </div>
+            </div>
+            
+            <button id="joinBtn" disabled class="cyberpunk-btn w-full py-3 rounded-lg flex items-center justify-center opacity-50 cursor-not-allowed">
+                <span>ACCESS DENIED</span>
+                <i class="fas fa-lock ml-2"></i>
+            </button>
+            
+            <div class="mt-6 text-xs text-center text-gray-500">
+                <p>WARNING: UNAUTHORIZED ACCESS WILL BE TRACED</p>
+                <p class="mt-1">ALL ACTIVITIES ARE LOGGED</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Room -->
+    <div id="chatRoom" class="hidden w-full max-w-4xl h-[70vh] cyberpunk-box rounded-lg relative overflow-hidden">
+        <div class="absolute inset-0 bg-black opacity-90"></div>
+        <div class="relative z-10 h-full flex flex-col">
+            <!-- Header -->
+            <div class="border-b border-green-500 p-4 flex justify-between items-center">
+                <div>
+                    <h2 class="cyberpunk-font text-xl">LYNCHAT</h2>
+                    <div class="flex items-center text-xs">
+                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2 pulse"></div>
+                        <span id="connectionStatus">CONNECTING...</span>
+                    </div>
+                </div>
+                <div class="text-sm">
+                    <span id="userCount">0</span> USERS ONLINE
+                </div>
+                <div class="text-sm">
+                    <span id="currentUser" class="text-green-400">GUEST</span>
+                </div>
+                <button id="startStreamBtn" class="cyberpunk-btn px-2 py-1 rounded text-xs md:px-3 md:text-sm mr-2">
+                    <i class="fas fa-video mr-1"></i> STREAM
+                </button>
+                <button id="settingsBtn" class="cyberpunk-btn px-2 py-1 rounded text-xs md:px-3 md:text-sm mr-2">
+                    <i class="fas fa-cog mr-1"></i> SETTINGS
+                </button>
+                <button id="closeChatBtn" class="cyberpunk-btn px-2 py-1 rounded text-xs md:px-3 md:text-sm">
+                    <i class="fas fa-times mr-1"></i> CLOSE
+                </button>
+            </div>
+            
+            <!-- Stream Container -->
+            <div id="streamContainer" class="hidden p-4 border-b border-green-500">
+                <div class="cyberpunk-box p-2">
+                    <video id="streamVideo" class="w-full" autoplay playsinline></video>
+                    <div class="flex justify-between mt-2">
+                        <div class="text-xs text-green-400">
+                            <span id="streamStatus">LIVE STREAM</span>
+                        </div>
+                        <button id="stopStreamBtn" class="cyberpunk-btn px-2 py-1 rounded text-xs">
+                            <i class="fas fa-stop mr-1"></i> STOP
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Messages -->
+            <div id="messages" class="flex-1 overflow-y-auto p-4 cyberpunk-scrollbar space-y-4">
+                <div class="text-center text-gray-500 text-sm">
+                    <p>SYSTEM: WELCOME TO LYNCHAT</p>
+                    <p>YOUR MESSAGES ARE END-TO-END ENCRYPTED</p>
+                </div>
+            </div>
+            
+            <!-- Input Area -->
+            <div class="border-t border-green-500 p-4">
+                <div class="flex space-x-2">
+                    <input type="text" id="messageInput" class="cyberpunk-input flex-1 rounded" placeholder="TYPE YOUR MESSAGE..." disabled>
+                    <button id="sendBtn" class="cyberpunk-btn px-4 rounded flex items-center justify-center" disabled>
+                        <i class="fas fa-paper-plane mr-2"></i>
+                        <span>SEND</span>
+                    </button>
+                </div>
+                <div class="flex justify-between mt-2 text-xs text-gray-500">
+                    <div>
+                        <span id="typingIndicator"></span>
+                    </div>
+                    <div>
+                        <span id="characterCount">0/200</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Connection Error Modal -->
+    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 hidden">
+        <div class="cyberpunk-box p-6 max-w-md w-full relative">
+            <div class="absolute inset-0 bg-black opacity-90"></div>
+            <div class="relative z-10">
+                <h3 class="cyberpunk-font text-xl text-red-500 mb-4">
+                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                    CONNECTION ERROR
+                </h3>
+                <p id="errorMessage" class="mb-4">Failed to connect to the chat server. Please try again later.</p>
+                <div class="flex justify-end">
+                    <button id="retryBtn" class="cyberpunk-btn px-4 py-2 rounded">
+                        RETRY CONNECTION
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyC7zwrxJVZPxEfM9ulVOUJOSCnMjb1kyk0",
+  authDomain: "lynchat-f6fbc.firebaseapp.com",
+  databaseURL: "https://lynchat-f6fbc-default-rtdb.firebaseio.com",
+  projectId: "lynchat-f6fbc",
+  storageBucket: "lynchat-f6fbc.appspot.com",
+  messagingSenderId: "465251710149",
+  appId: "1:465251710149:web:e6243a6ca5de6754c1ecac",
+  measurementId: "G-LGDFQ5JK6G"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // DOM Elements
+        const loginScreen = document.getElementById('loginScreen');
+        const startStreamBtn = document.getElementById('startStreamBtn');
+        const stopStreamBtn = document.getElementById('stopStreamBtn');
+        const streamContainer = document.getElementById('streamContainer');
+        const streamVideo = document.getElementById('streamVideo');
+        const streamStatus = document.getElementById('streamStatus');
+        let mediaStream = null;
+        const chatRoom = document.getElementById('chatRoom');
+        const nicknameInput = document.getElementById('nickname');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const followStatus = document.getElementById('followStatus');
+        const joinBtn = document.getElementById('joinBtn');
+        const messagesContainer = document.getElementById('messages');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const currentUser = document.getElementById('currentUser');
+        const userCount = document.getElementById('userCount');
+        const connectionStatus = document.getElementById('connectionStatus');
+        const typingIndicator = document.getElementById('typingIndicator');
+        const characterCount = document.getElementById('characterCount');
+        const errorModal = document.getElementById('errorModal');
+        const errorMessage = document.getElementById('errorMessage');
+        const retryBtn = document.getElementById('retryBtn');
+        
+        // State
+        let username = '';
+        let isFollowing = false;
+        let socket;
+        let typingTimeout;
+        
+        // Instagram follow verification
+        verifyBtn.addEventListener('click', () => {
+            // Open Instagram in new tab
+            window.open('https://www.instagram.com/exvisuites/', '_blank');
+            
+            // Show verification UI
+            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> VERIFYING...';
+            
+            // Simulate verification delay
+            setTimeout(() => {
+                isFollowing = true;
+                followStatus.classList.remove('hidden');
+                verifyBtn.classList.add('hidden');
+                
+                // Enable join button if nickname is filled
+                if (nicknameInput.value.trim()) {
+                    joinBtn.disabled = false;
+                    joinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                    joinBtn.innerHTML = '<span>ACCESS GRANTED</span> <i class="fas fa-unlock ml-2"></i>';
+                }
+            }, 2000);
+        });
+        
+        // Enable join button when nickname is entered and following
+        nicknameInput.addEventListener('input', () => {
+            if (nicknameInput.value.trim() && isFollowing) {
+                joinBtn.disabled = false;
+                joinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                joinBtn.innerHTML = '<span>ACCESS GRANTED</span> <i class="fas fa-unlock ml-2"></i>';
+            } else {
+                joinBtn.disabled = true;
+                joinBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                joinBtn.innerHTML = '<span>ACCESS DENIED</span> <i class="fas fa-lock ml-2"></i>';
+            }
+        });
+        
+        // Join chat room
+        joinBtn.addEventListener('click', () => {
+            username = nicknameInput.value.trim() || 'ANONYMOUS_' + Math.floor(Math.random() * 1000);
+            currentUser.textContent = username;
+            
+            loginScreen.classList.add('hidden');
+            chatRoom.classList.remove('hidden');
+            
+            // Connect to Firebase
+            connectToChat();
+            
+            // Listen for new messages
+            const messagesRef = database.ref('messages');
+            messagesRef.orderByChild('timestamp').limitToLast(100).on('child_added', (snapshot) => {
+                const message = snapshot.val();
+                addMessage(message.sender, message.text, message.sender === username);
+            });
+            
+            // Update user count
+            const usersRef = database.ref('users/' + username);
+            usersRef.set(true);
+            usersRef.onDisconnect().remove();
+            
+            const userCountRef = database.ref('users');
+            userCountRef.on('value', (snapshot) => {
+                const count = snapshot.numChildren();
+                userCount.textContent = count;
+            });
+        });
+        
+        // Connect to Firebase
+        function connectToChat() {
+            connectionStatus.textContent = 'CONNECTING...';
+            
+            // Check Firebase connection
+            const connectedRef = database.ref('.info/connected');
+            connectedRef.on('value', (snap) => {
+                if (snap.val() === true) {
+                    connectionStatus.textContent = 'CONNECTED';
+                    connectionStatus.classList.remove('text-yellow-500');
+                    connectionStatus.classList.add('text-green-500');
+                    
+                    messageInput.disabled = false;
+                    sendBtn.disabled = false;
+                    
+                    // Add welcome message
+                    addSystemMessage(`${username}, YOU'RE NOW CONNECTED TO CYBERCHAT 2077`);
+                } else {
+                    showError('CONNECTION FAILED: SERVER UNREACHABLE');
+                }
+            });
+        }
+        
+        // Send message
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        // Typing indicator
+        messageInput.addEventListener('input', () => {
+            characterCount.textContent = `${messageInput.value.length}/200`;
+            
+            // Show typing indicator briefly
+            typingIndicator.textContent = 'YOU ARE TYPING...';
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                typingIndicator.textContent = '';
+            }, 2000);
+        });
+        
+        function sendMessage() {
+            const message = messageInput.value.trim();
+            if (message && message.length <= 200) {
+                // Save message to Firebase
+                const messagesRef = database.ref('messages');
+                const newMessageRef = messagesRef.push();
+                newMessageRef.set({
+                    sender: username,
+                    text: message,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
+                messageInput.value = '';
+                characterCount.textContent = '0/200';
+            }
+        }
+        
+        // Add message to chat
+        function addMessage(sender, text, isCurrentUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'}`;
+            
+            const bubble = document.createElement('div');
+            bubble.className = `max-w-xs md:max-w-md rounded-lg px-4 py-2 ${isCurrentUser ? 'bg-green-900 bg-opacity-50' : 'bg-gray-900 bg-opacity-50'}`;
+            
+            const senderSpan = document.createElement('span');
+            senderSpan.className = 'text-xs font-bold';
+            senderSpan.textContent = sender;
+            
+            const textDiv = document.createElement('div');
+            textDiv.className = 'mt-1';
+            textDiv.textContent = text;
+            
+            bubble.appendChild(senderSpan);
+            bubble.appendChild(textDiv);
+            messageDiv.appendChild(bubble);
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Add system message
+        function addSystemMessage(text) {
+            const systemDiv = document.createElement('div');
+            systemDiv.className = 'text-center text-xs text-gray-500 my-2';
+            systemDiv.textContent = `SYSTEM: ${text}`;
+            messagesContainer.appendChild(systemDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Show error modal
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorModal.classList.remove('hidden');
+        }
+        
+        // Retry connection
+        retryBtn.addEventListener('click', () => {
+            errorModal.classList.add('hidden');
+            connectToChat();
+        });
+        
+        // Handle streaming
+        startStreamBtn.addEventListener('click', async () => {
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true, 
+                    audio: true 
+                });
+                streamVideo.srcObject = mediaStream;
+                streamContainer.classList.remove('hidden');
+                startStreamBtn.classList.add('hidden');
+                addSystemMessage(`${username} STARTED A LIVE STREAM`);
+            } catch (err) {
+                addSystemMessage(`STREAM ERROR: ${err.message}`);
+            }
+        });
+
+        stopStreamBtn.addEventListener('click', () => {
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+                streamVideo.srcObject = null;
+                streamContainer.classList.add('hidden');
+                startStreamBtn.classList.remove('hidden');
+                addSystemMessage(`${username} ENDED THE STREAM`);
+            }
+        });
+
+        // Close chat and return to login
+        document.getElementById('closeChatBtn').addEventListener('click', () => {
+            // Stop any active stream when closing chat
+            if (mediaStream) {
+                mediaStream.getTracks().forEach(track => track.stop());
+            }
+            
+            // Remove Firebase listeners
+            database.ref('messages').off();
+            database.ref('users/' + username).remove();
+            database.ref('users').off();
+            
+            chatRoom.classList.add('hidden');
+            loginScreen.classList.remove('hidden');
+            
+            // Reset chat state
+            messagesContainer.innerHTML = `
+                <div class="text-center text-gray-500 text-sm">
+                    <p>SYSTEM: WELCOME TO CYBERCHAT 2077</p>
+                    <p>YOUR MESSAGES ARE END-TO-END ENCRYPTED</p>
+                </div>
+            `;
+            messageInput.value = '';
+            characterCount.textContent = '0/200';
+        });
+
+        // Terminal-like blinking cursor effect
+        const cursor = document.createElement('span');
+        cursor.className = 'terminal-cursor';
+        document.body.appendChild(cursor);
+        
+        // Random glitch effect occasionally
+        setInterval(() => {
+            if (Math.random() > 0.9) {
+                document.body.classList.add('glitch-effect');
+                setTimeout(() => {
+                    document.body.classList.remove('glitch-effect');
+                }, 200);
+            }
+        }, 10000);
+    </script>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=ican69/lynchat" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
+</html>
