@@ -3,514 +3,563 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LYN CHAT</title>
+    <title>Dragon Gate Chat - Futuristic Chinese Chatroom</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Roboto:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;700&display=swap');
+        
+        :root {
+            --primary-red: #e63946;
+            --primary-gold: #ffd700;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #050505;
+        }
         
         body {
-            font-family: 'Roboto', sans-serif;
-            background-color: #f5f5f5;
-            color: #2d3748;
+            font-family: 'Noto Sans SC', sans-serif;
+            background-color: var(--dark-bg);
+            color: white;
             overflow-x: hidden;
-            background-image: url('https://images.unsplash.com/photo-1490750967868-88aa4486c946?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-size: cover;
-            background-attachment: fixed;
         }
         
-        .logo-container {
-            border: 2px solid #4a7c59;
-            box-shadow: 0 0 10px rgba(74, 124, 89, 0.3);
-            background-color: rgba(255, 255, 255, 0.9);
-        }
-        
-        .lyn-font {
-            font-family: 'Playfair Display', serif;
-            color: #2d3748;
-            font-weight: bold;
-        }
-        
-        .lyn-box {
-            border: 2px solid #4a7c59;
-            box-shadow: 0 0 15px rgba(74, 124, 89, 0.2);
+        .led-border {
             position: relative;
+            border: 2px solid transparent;
+            border-radius: 8px;
             overflow: hidden;
-            background-color: rgba(255, 255, 255, 0.85);
         }
         
-        .lyn-box::before {
+        .led-border::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--primary-red), 
+                var(--primary-gold), 
+                var(--primary-red), 
+                transparent);
+            background-size: 200% 100%;
+            animation: ledAnimation 3s linear infinite;
+        }
+        
+        .led-border::after {
+            content: '';
+            position: absolute;
             bottom: 0;
-            background-image: url('https://images.unsplash.com/photo-1516214104703-d870798883c5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
-            background-size: 300px;
-            opacity: 0.1;
-            z-index: -1;
-        }
-        
-        .flower-decoration {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            background-image: url('https://www.freepnglogos.com/uploads/flower-png/flower-png-transparent-image-pngpix-0.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            opacity: 0.8;
-        }
-        
-        .flower-top-left {
-            top: -20px;
-            left: -20px;
-            transform: rotate(-15deg);
-        }
-        
-        .flower-top-right {
-            top: -20px;
-            right: -20px;
-            transform: rotate(15deg);
-        }
-        
-        .flower-bottom-left {
-            bottom: -20px;
-            left: -20px;
-            transform: rotate(15deg);
-        }
-        
-        .flower-bottom-right {
-            bottom: -20px;
-            right: -20px;
-            transform: rotate(-15deg);
-        }
-        
-        .lyn-input {
-            background-color: rgba(255, 255, 255, 0.8);
-            border: 1px solid #4a7c59;
-            color: #2d3748;
-            padding: 10px;
-            font-family: 'Roboto', sans-serif;
-            font-size: 1.25rem;
-        }
-        
-        .lyn-input:focus {
-            outline: none;
-            box-shadow: 0 0 8px rgba(74, 124, 89, 0.3);
-        }
-        
-        .lyn-btn {
-            background: linear-gradient(45deg, #4a7c59, #6b9d7a);
-            color: white;
-            border: 1px solid #4a7c59;
-            font-family: 'Playfair Display', serif;
-            font-weight: bold;
-            transition: all 0.3s;
-            font-size: 1.25rem;
-        }
-        
-        .lyn-btn:hover {
-            background: linear-gradient(45deg, #6b9d7a, #8abf8a);
-            box-shadow: 0 0 10px rgba(74, 124, 89, 0.3);
-            transform: translateY(-2px);
-        }
-        
-        .lyn-btn:active {
-            transform: translateY(0);
-        }
-        
-        .lyn-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        .lyn-scrollbar::-webkit-scrollbar-track {
-            background: rgba(210, 230, 210, 0.5);
-        }
-        
-        .lyn-scrollbar::-webkit-scrollbar-thumb {
-            background: #4a7c59;
-            border-radius: 4px;
-        }
-        
-        .leaf-animation {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0;
-            left: 0;
-            background-image: url('https://www.freepnglogos.com/uploads/leaf-png/leaf-png-transparent-image-pngpix-0.png');
-            background-size: 30px;
-            opacity: 0.05;
-            pointer-events: none;
-            z-index: 0;
-        }
-        
-        .sunlight {
-            position: absolute;
-            top: 0;
             left: 0;
             right: 0;
-            height: 100%;
-            background: linear-gradient(
-                to bottom,
-                rgba(255, 255, 255, 0.1) 0%,
-                rgba(255, 255, 255, 0) 10%
-            );
-            background-size: 100% 15px;
-            animation: sunlight 15s linear infinite;
-            pointer-events: none;
-            z-index: 10;
+            height: 3px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                var(--primary-gold), 
+                var(--primary-red), 
+                var(--primary-gold), 
+                transparent);
+            background-size: 200% 100%;
+            animation: ledAnimation 3s linear infinite reverse;
         }
         
-        @keyframes sunlight {
+        @keyframes ledAnimation {
             0% {
-                background-position: 0 0;
+                background-position: 0% 50%;
             }
             100% {
-                background-position: 0 100%;
+                background-position: 200% 50%;
             }
         }
         
-        .butterfly {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-image: url('https://www.freepnglogos.com/uploads/butterfly-png/butterfly-png-transparent-image-pngpix-0.png');
-            background-size: contain;
-            background-repeat: no-repeat;
-            animation: butterflyFly 20s linear infinite;
-            opacity: 0.7;
-            z-index: 5;
+        .chinese-pattern {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none" stroke="%23e63946" stroke-width="1"/><path d="M20,20 L80,20 L80,80 L20,80 Z" fill="none" stroke="%23ffd700" stroke-width="1"/><circle cx="50" cy="50" r="10" fill="none" stroke="%23e63946" stroke-width="1"/></svg>');
+            background-size: 100px 100px;
+            opacity: 0.1;
         }
         
-        @keyframes butterflyFly {
-            0% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-            25% {
-                transform: translate(200px, 50px) rotate(10deg);
+        .message-container {
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary-red) var(--darker-bg);
+        }
+        
+        .message-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .message-container::-webkit-scrollbar-track {
+            background: var(--darker-bg);
+        }
+        
+        .message-container::-webkit-scrollbar-thumb {
+            background-color: var(--primary-red);
+            border-radius: 3px;
+        }
+        
+        .neon-text {
+            text-shadow: 0 0 5px var(--primary-red), 0 0 10px var(--primary-red), 0 0 15px var(--primary-gold);
+        }
+        
+        .neon-glow {
+            box-shadow: 0 0 10px var(--primary-red), 0 0 20px rgba(230, 57, 70, 0.5);
+        }
+        
+        .dragon-icon {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
             }
             50% {
-                transform: translate(400px, 0) rotate(0deg);
-            }
-            75% {
-                transform: translate(200px, -50px) rotate(-10deg);
-            }
-            100% {
-                transform: translate(0, 0) rotate(0deg);
+                transform: translateY(-10px);
             }
         }
         
-        .lyn-title {
-            font-family: 'Playfair Display', serif;
-            font-weight: bold;
-            color: #4a7c59;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-            position: relative;
-            display: inline-block;
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
         }
         
-        .lyn-title::before, .lyn-title::after {
-            content: '✿';
-            position: absolute;
-            color: #e91e63;
-            font-size: 1.2em;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        
-        .lyn-title::before {
-            left: -25px;
-        }
-        
-        .lyn-title::after {
-            right: -25px;
-        }
-
-        /* Very large chat message font size with white text */
-        .chat-message {
-            font-size: 2.25rem; /* Approximately 68px */
-            line-height: 1.1; /* Tighter line spacing */
-            color: white; /* White text color */
-        }
-
-        /* Adjust message bubbles for large text */
-        .message-bubble {
-            max-width: 90%;
-            margin-bottom: 1rem; /* Reduced spacing between messages */
-        }
-
-        /* Sender name style with reduced spacing */
-        .message-sender {
-            display: block;
-            font-weight: bold;
-            color: #4a7c59;
-            font-size: 1.5rem;
-            margin-bottom: 0.1rem; /* Significantly reduced spacing between username and message */
-        }
-
-        /* Darker background for received messages for better contrast */
-        .received-message {
-            background-color: #2d3748 !important;
-        }
-
-        /* System message font size */
-        .system-message {
-            font-size: 1.5rem; /* Slightly smaller than chat messages */
-        }
-
-        /* Input area font size */
-        .input-area {
-            font-size: 1.25rem;
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-center p-4">
-    <div class="sunlight"></div>
-    <div class="leaf-animation"></div>
-    
-    <!-- Login Screen -->
-    <div id="loginScreen" class="lyn-box w-full max-w-md p-8 rounded-lg relative overflow-hidden">
-        <div class="flower-decoration flower-top-left"></div>
-        <div class="flower-decoration flower-top-right"></div>
-        <div class="flower-decoration flower-bottom-left"></div>
-        <div class="flower-decoration flower-bottom-right"></div>
-        
-        <div class="relative z-10">
-            <h1 class="lyn-title text-3xl md:text-4xl text-center mb-6">LYN</h1>
+<body class="min-h-screen flex flex-col">
+    <!-- Header with Chinese Dragon Icon -->
+    <header class="py-4 px-6 bg-black bg-opacity-80 border-b border-red-600 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <i class="dragon-icon fas fa-dragon text-4xl text-red-500"></i>
+            <h1 class="text-2xl font-bold neon-text">Dragon Gate Chatroom<br><span class="text-sm">Exclusive Community</span></h1>
+        </div>
+        <div class="hidden md:flex space-x-4">
+            <span class="text-yellow-400"><i class="fas fa-users mr-1"></i> <span id="userCount">0</span> 在线</span>
+            <button id="themeToggle" class="text-yellow-400 hover:text-red-500 transition">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col md:flex-row p-4 gap-4">
+        <!-- Login Form (shown by default) -->
+        <div id="loginForm" class="w-full md:w-1/3 lg:w-1/4 bg-black bg-opacity-70 p-6 rounded-lg led-border flex flex-col items-center">
+            <div class="chinese-pattern absolute inset-0 pointer-events-none"></div>
+            <h2 class="text-xl font-bold text-yellow-400 mb-6 neon-text">Join Chatroom</h2>
             
-            <div class="mb-6">
-                <label for="nickname" class="block text-sm mb-2" style="color: #4a7c59;">ENTER YOUR NAME</label>
-                <input type="text" id="nickname" class="lyn-input w-full p-3 rounded" placeholder="Username">
+            <div class="w-full mb-4">
+                <label for="nickname" class="block text-red-400 mb-2">Nickname</label>
+                <input type="text" id="nickname" class="w-full px-4 py-2 bg-gray-900 border border-red-600 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 text-white" placeholder="Enter your nickname" maxlength="20">
+                <p class="text-xs text-gray-400 mt-1">Max 20 characters</p>
             </div>
             
-            <div class="mb-6">
-                <label class="block text-sm mb-2" style="color: #4a7c59;">FOLLOW US</label>
-                <div class="flex items-center lyn-box p-3" style="background-color: rgba(255, 255, 255, 0.7);">
-                    <i class="fas fa-heart text-xl mr-3" style="color: #e91e63;"></i>
-                    <span class="flex-1">@exvisuites</span> <!-- Changed Instagram username -->
-                    <button id="verifyBtn" class="lyn-btn px-3 py-1 rounded text-xs">
-                        VERIFY
-                    </button>
-                </div>
-                <div id="followStatus" class="text-xs mt-2 hidden" style="color: #4a7c59;">
-                    <i class="fas fa-check-circle text-green-600 mr-1"></i>
-                    <span>FOLLOW VERIFIED</span>
+            <div class="w-full mb-6">
+                <label for="instagram" class="block text-red-400 mb-2">Instagram Username</label>
+                <input type="text" id="instagram" class="w-full px-4 py-2 bg-gray-900 border border-red-600 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 text-white" placeholder="Your Instagram username">
+                <div class="flex items-center mt-2">
+                    <input type="checkbox" id="followCheck" class="mr-2">
+                    <label for="followCheck" class="text-sm text-gray-300">I follow <span class="text-yellow-400">@exvisuites</span></label>
                 </div>
             </div>
             
-            <button id="joinBtn" disabled class="lyn-btn w-full py-3 rounded-lg flex items-center justify-center opacity-50 cursor-not-allowed">
-                <span>ENTER LYN</span>
-                <i class="fas fa-heart ml-2"></i>
+            <button id="joinChat" class="w-full py-2 bg-gradient-to-r from-red-600 to-yellow-600 rounded font-bold text-white hover:opacity-90 transition flex items-center justify-center neon-glow">
+                <i class="fas fa-door-open mr-2"></i> Join Chatroom
             </button>
             
-            <div class="mt-6 text-xs text-center" style="color: #4a7c59;">
-                <p>WELCOME TO OUR LYN COMMUNITY</p>
-                <p class="mt-1">CONNECT WITH FRIENDS</p>
+            <div class="mt-6 text-center text-gray-400 text-sm">
+                <p>遵守聊天规则</p>
+                <p>尊重其他用户</p>
             </div>
         </div>
-    </div>
-    
-    <!-- Chat Room -->
-    <div id="chatRoom" class="hidden w-full max-w-4xl h-[70vh] lyn-box rounded-lg relative overflow-hidden">
-        <div class="flower-decoration flower-top-left"></div>
-        <div class="flower-decoration flower-top-right"></div>
-        <div class="relative z-10 h-full flex flex-col">
-            <!-- Header -->
-            <div class="border-b border-green-600 p-3 md:p-4 flex justify-between items-center" style="background-color: rgba(255, 255, 255, 0.8);">
-                <div>
-                    <h2 class="lyn-title text-lg md:text-xl">LYN</h2>
-                    <div class="flex items-center text-[10px] md:text-xs" style="color: #4a7c59;">
-                        <div class="w-2 h-2 bg-green-600 rounded-full mr-2"></div>
-                        <span id="connectionStatus">CONNECTING...</span>
+        
+        <!-- Chat Interface (hidden by default) -->
+        <div id="chatInterface" class="hidden w-full md:w-2/3 lg:w-3/4 flex flex-col">
+            <div class="flex-1 flex flex-col bg-black bg-opacity-70 rounded-lg led-border overflow-hidden">
+                <!-- Chat Header -->
+                <div class="bg-black bg-opacity-80 p-3 border-b border-red-600 flex justify-between items-center">
+                    <h2 class="text-lg font-bold text-yellow-400 neon-text">群聊</h2>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-sm text-red-400"><i class="fas fa-users mr-1"></i> <span id="activeUserCount">0</span> online</span>
+                        <button id="leaveChat" class="text-sm text-gray-300 hover:text-red-500 transition">
+                            <i class="fas fa-sign-out-alt mr-1"></i> Leave
+                        </button>
                     </div>
                 </div>
-                <div class="text-xs md:text-sm" style="color: #4a7c59;">
-                    <span id="userCount">0</span> MEMBERS
+                
+                <!-- Messages Container -->
+                <div id="messages" class="flex-1 p-4 overflow-y-auto message-container space-y-3">
+                    <!-- Messages will be added here dynamically -->
+                    <div class="text-center py-10 text-gray-500">
+                        <i class="fas fa-comments text-4xl mb-2"></i>
+                        <p>Welcome to Dragon Gate Chat</p>
+                        <p class="text-sm mt-2">Start your conversation</p>
+                    </div>
                 </div>
-                <div class="text-xs md:text-sm" style="color: #4a7c59;">
-                    <span id="currentUser" style="color: #4a7c59;">GUEST</span>
+                
+                <!-- Message Input -->
+                <div class="bg-black bg-opacity-80 p-3 border-t border-red-600">
+                    <div class="flex space-x-2">
+                        <input type="text" id="messageInput" class="flex-1 px-4 py-2 bg-gray-900 border border-red-600 rounded focus:outline-none focus:ring-2 focus:ring-yellow-500 text-white" placeholder="Type your message..." maxlength="200">
+                        <button id="sendMessage" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition neon-glow">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="flex justify-between mt-2 text-xs text-gray-500">
+                        <span>Press Enter to send</span>
+                        <span id="charCount">0/200</span>
+                    </div>
                 </div>
-                <button id="startStreamBtn" class="lyn-btn px-2 py-1 rounded text-[10px] md:px-3 md:text-sm mr-2">
-                    <i class="fas fa-camera mr-1"></i> <span class="hidden md:inline">SHARE</span>
-                </button>
-                <button id="clearChatBtn" class="lyn-btn px-2 py-1 rounded text-[10px] md:px-3 md:text-sm mr-2">
-                    <i class="fas fa-trash mr-1"></i> <span class="hidden md:inline">CLEAR</span>
-                </button>
-                <button id="closeChatBtn" class="lyn-btn px-2 py-1 rounded text-[10px] md:px-3 md:text-sm">
-                    <i class="fas fa-times mr-1"></i> <span class="hidden md:inline">EXIT</span>
-                </button>
             </div>
             
-            <!-- Stream Container -->
-            <div id="streamContainer" class="hidden p-4 border-b border-green-600" style="background-color: rgba(255, 255, 255, 0.7);">
-                <div class="lyn-box p-2">
-                    <video id="streamVideo" class="w-full" autoplay playsinline></video>
-                    <div class="flex justify-between mt-2">
-                        <div class="text-xs" style="color: #4a7c59;">
-                            <span id="streamStatus">LIVE STREAM</span>
+            <!-- Online Users -->
+            <div id="onlineUsers" class="mt-4 bg-black bg-opacity-70 p-4 rounded-lg led-border hidden md:block">
+                <h3 class="text-lg font-bold text-yellow-400 mb-3 neon-text">Online Users</h3>
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2" id="userList">
+                    <!-- Online users will be added here -->
+                </div>
+            </div>
+
+            <!-- Streaming Section -->
+            <div id="streamSection" class="mt-4 bg-black bg-opacity-70 p-4 rounded-lg led-border">
+                <h3 class="text-lg font-bold text-yellow-400 mb-3 neon-text">Live Stream</h3>
+                <div class="flex flex-col space-y-4">
+                    <!-- Local Stream -->
+                    <div id="localStreamContainer" class="hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-red-400">Your Stream</span>
+                            <button id="stopStreamBtn" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition">
+                                Stop Stream
+                            </button>
                         </div>
-                        <button id="stopStreamBtn" class="lyn-btn px-2 py-1 rounded text-xs">
-                            <i class="fas fa-stop mr-1"></i> STOP
+                        <video id="localStream" class="w-full rounded-lg border border-red-600" autoplay muted></video>
+                    </div>
+
+                    <!-- Remote Stream -->
+                    <div id="remoteStreamContainer" class="hidden">
+                        <div class="flex justify-between items-center mb-2">
+                            <span id="remoteStreamerName" class="text-yellow-400"></span>
+                            <button id="stopViewingBtn" class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition">
+                                Stop Viewing
+                            </button>
+                        </div>
+                        <video id="remoteStream" class="w-full rounded-lg border border-yellow-600" autoplay></video>
+                    </div>
+
+                    <!-- Stream Controls -->
+                    <div class="flex space-x-2">
+                        <button id="startStreamBtn" class="flex-1 py-2 bg-gradient-to-r from-red-600 to-yellow-600 rounded font-bold text-white hover:opacity-90 transition neon-glow">
+                            <i class="fas fa-video mr-2"></i> Start Stream
+                        </button>
+                        <button id="requestViewBtn" class="flex-1 py-2 bg-gradient-to-r from-yellow-600 to-red-600 rounded font-bold text-white hover:opacity-90 transition neon-glow">
+                            <i class="fas fa-eye mr-2"></i> Request View
                         </button>
                     </div>
                 </div>
             </div>
-            
-            <!-- Messages -->
-            <div id="messages" class="flex-1 overflow-y-auto p-4 lyn-scrollbar space-y-4" style="background-color: rgba(255, 255, 255, 0.7);">
-                <div class="text-center text-sm system-message" style="color: #4a7c59;">
-                    <p>WELCOME TO LYN CHAT</p>
-                    <p>CONNECT WITH YOUR COMMUNITY</p>
-                </div>
-            </div>
-            
-            <!-- Input Area -->
-            <div class="border-t border-green-600 p-4 input-area" style="background-color: rgba(255, 255, 255, 0.8);">
-                <div class="flex space-x-2">
-                    <input type="text" id="messageInput" class="lyn-input flex-1 rounded" placeholder="TYPE YOUR MESSAGE..." disabled>
-                    <button id="sendBtn" class="lyn-btn px-4 rounded flex items-center justify-center" disabled>
-                        <i class="fas fa-paper-plane mr-2"></i>
-                        <span>SEND</span>
-                    </button>
-                </div>
-                <div class="flex justify-between mt-2 text-[10px] md:text-xs" style="color: #4a7c59;">
-                    <div>
-                        <span id="typingIndicator"></span>
-                    </div>
-                    <div>
-                        <span id="characterCount">0/200</span>
-                    </div>
-                </div>
-            </div>
         </div>
-    </div>
-    
-    <!-- Connection Error Modal -->
-    <div id="errorModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
-        <div class="lyn-box p-6 max-w-md w-full relative">
-            <div class="flower-decoration flower-top-left"></div>
-            <div class="flower-decoration flower-top-right"></div>
-            <div class="relative z-10">
-                <h3 class="lyn-font text-xl mb-4" style="color: #e53e3e;">
-                    <i class="fas fa-exclamation-triangle mr-2"></i>
-                    CONNECTION ERROR
-                </h3>
-                <p id="errorMessage" class="mb-4">Failed to connect to LYN chat. Please try again later.</p>
-                <div class="flex justify-end">
-                    <button id="retryBtn" class="lyn-btn px-4 py-2 rounded">
-                        RETRY CONNECTION
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    </main>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
-    
+    <!-- Footer -->
+    <footer class="py-3 px-6 bg-black bg-opacity-80 border-t border-red-600 text-center text-gray-400 text-sm">
+        <p>© 2023 Dragon Gate Chat - All rights reserved</p>
+        <p class="mt-1">Follow us on Instagram: <a href="https://www.instagram.com/exvisuites/" target="_blank" class="text-yellow-400 hover:text-red-500 transition">@exvisuites</a></p>
+    </footer>
+
     <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyC7zwrxJVZPxEfM9ulVOUJOSCnMjb1kyk0",
-            authDomain: "lynchat-f6fbc.firebaseapp.com",
-            databaseURL: "https://lynchat-f6fbc-default-rtdb.firebaseio.com",
-            projectId: "lynchat-f6fbc",
-            storageBucket: "lynchat-f6fbc.appspot.com",
-            messagingSenderId: "465251710149",
-            appId: "1:465251710149:web:e6243a6ca5de6754c1ecac",
-            measurementId: "G-LGDFQ5JK6G"
-        };
-        
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        
-        // DOM Elements
-        const clearChatBtn = document.getElementById('clearChatBtn');
-        const loginScreen = document.getElementById('loginScreen');
-        const startStreamBtn = document.getElementById('startStreamBtn');
-        const stopStreamBtn = document.getElementById('stopStreamBtn');
-        const streamContainer = document.getElementById('streamContainer');
-        const streamVideo = document.getElementById('streamVideo');
-        const streamStatus = document.getElementById('streamStatus');
-        let mediaStream = null;
-        const chatRoom = document.getElementById('chatRoom');
-        const nicknameInput = document.getElementById('nickname');
-        const verifyBtn = document.getElementById('verifyBtn');
-        const followStatus = document.getElementById('followStatus');
-        const joinBtn = document.getElementById('joinBtn');
-        const messagesContainer = document.getElementById('messages');
-        const messageInput = document.getElementById('messageInput');
-        const sendBtn = document.getElementById('sendBtn');
-        const currentUser = document.getElementById('currentUser');
-        const userCount = document.getElementById('userCount');
-        const connectionStatus = document.getElementById('connectionStatus');
-        const typingIndicator = document.getElementById('typingIndicator');
-        const characterCount = document.getElementById('characterCount');
-        const errorModal = document.getElementById('errorModal');
-        const errorMessage = document.getElementById('errorMessage');
-        const retryBtn = document.getElementById('retryBtn');
-        
-        // State
-        let username = '';
-        let isFollowing = false;
-        let typingTimeout;
-        
-        // Follow verification
-        verifyBtn.addEventListener('click', () => {
-            // Open page in new tab with updated Instagram URL
-            window.open('https://www.instagram.com/exvisuites/', '_blank');
+        document.addEventListener('DOMContentLoaded', function() {
+            // DOM Elements
+            const loginForm = document.getElementById('loginForm');
+            const chatInterface = document.getElementById('chatInterface');
+            const joinChatBtn = document.getElementById('joinChat');
+            const leaveChatBtn = document.getElementById('leaveChat');
+            const messageInput = document.getElementById('messageInput');
+            const sendMessageBtn = document.getElementById('sendMessage');
+            const messagesContainer = document.getElementById('messages');
+            const userList = document.getElementById('userList');
+            const userCount = document.getElementById('userCount');
+            const activeUserCount = document.getElementById('activeUserCount');
+            const charCount = document.getElementById('charCount');
+            const nicknameInput = document.getElementById('nickname');
+            const instagramInput = document.getElementById('instagram');
+            const followCheck = document.getElementById('followCheck');
+            const themeToggle = document.getElementById('themeToggle');
             
-            // Show verification UI
-            verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> VERIFYING...';
+            // State
+            let currentUser = null;
+            let users = [];
+            let messages = [];
+            let isDarkMode = true;
             
-            // Simulate verification delay
-            setTimeout(() => {
-                isFollowing = true;
-                followStatus.classList.remove('hidden');
-                verifyBtn.classList.add('hidden');
-                
-                // Enable join button if nickname is filled
-                if (nicknameInput.value.trim()) {
-                    joinBtn.disabled = false;
-                    joinBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    joinBtn.innerHTML = '<span>ENTER LYN</span> <i class="fas fa-heart ml-2"></i>';
+            // Initialize
+            updateCharCount();
+            
+            // Event Listeners
+            joinChatBtn.addEventListener('click', joinChat);
+            leaveChatBtn.addEventListener('click', leaveChat);
+            sendMessageBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendMessage();
                 }
-            }, 2000);
-        });
-        
-        // [Rest of the JavaScript remains the same]
-        
-        // Add message to chat with white text and tighter spacing
-        function addMessage(sender, text, isCurrentUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} message-bubble`;
+            });
+            messageInput.addEventListener('input', updateCharCount);
+            themeToggle.addEventListener('click', toggleTheme);
             
-            const bubble = document.createElement('div');
-            bubble.className = `max-w-xs md:max-w-md rounded-lg px-4 py-2 chat-message ${
-                isCurrentUser ? 'bg-green-600' : 'received-message'
-            }`;
-            bubble.style.border = '1px solid #4a7c59';
+            // Functions
+            function joinChat() {
+                const nickname = nicknameInput.value.trim();
+                const instagram = instagramInput.value.trim();
+                
+                if (!nickname) {
+                    alert('Please enter a nickname');
+                    return;
+                }
+                
+                if (!instagram) {
+                    alert('Please enter your Instagram username');
+                    return;
+                }
+                
+                if (!followCheck.checked) {
+                    alert('Please confirm you follow @exvisuites on Instagram');
+                    return;
+                }
+                
+                currentUser = {
+                    id: generateId(),
+                    nickname: nickname,
+                    instagram: instagram,
+                    color: getRandomColor()
+                };
+                
+                // Simulate adding user to chat
+                users.push(currentUser);
+                updateUserList();
+                
+                // Show chat interface
+                loginForm.classList.add('hidden');
+                chatInterface.classList.remove('hidden');
+                document.getElementById('onlineUsers').classList.remove('hidden');
+                
+                // Add welcome message
+                addSystemMessage(`${currentUser.nickname} joined the chat`);
+            }
             
-            const senderSpan = document.createElement('span');
-            senderSpan.className = 'message-sender';
-            senderSpan.textContent = `${sender}`;
+            function leaveChat() {
+                if (!currentUser) return;
+                
+                // Simulate removing user from chat
+                users = users.filter(user => user.id !== currentUser.id);
+                updateUserList();
+                
+                // Add leave message
+                addSystemMessage(`${currentUser.nickname} left the chat`);
+                
+                // Show login form
+                chatInterface.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                document.getElementById('onlineUsers').classList.add('hidden');
+                
+                // Reset current user
+                currentUser = null;
+            }
             
-            const textDiv = document.createElement('div');
-            textDiv.textContent = text;
+            function sendMessage() {
+                const messageText = messageInput.value.trim();
+                if (!messageText || !currentUser) return;
+                
+                const message = {
+                    id: generateId(),
+                    userId: currentUser.id,
+                    text: messageText,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+                
+                messages.push(message);
+                displayMessage(message);
+                
+                // Clear input
+                messageInput.value = '';
+                updateCharCount();
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
             
-            bubble.appendChild(senderSpan);
-            bubble.appendChild(textDiv);
-            messageDiv.appendChild(bubble);
+            function displayMessage(message) {
+                const user = users.find(u => u.id === message.userId);
+                if (!user) return;
+                
+                const isCurrentUser = user.id === currentUser.id;
+                
+                const messageElement = document.createElement('div');
+                messageElement.className = `flex ${isCurrentUser ? 'justify-end' : 'justify-start'} fade-in`;
+                
+                messageElement.innerHTML = `
+                    <div class="max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 ${isCurrentUser ? 'bg-red-900 bg-opacity-50' : 'bg-gray-800'}">
+                        ${!isCurrentUser ? `<div class="font-bold" style="color: ${user.color}">${user.nickname}</div>` : ''}
+                        <div class="mt-1">${message.text}</div>
+                        <div class="text-xs text-gray-400 mt-1 text-right">${message.timestamp}</div>
+                    </div>
+                `;
+                
+                messagesContainer.appendChild(messageElement);
+            }
             
-            messagesContainer.appendChild(messageDiv);
-            messagesContainer.scrollTop = messagesContainer.scrollHeight;
-        }
+            function addSystemMessage(text) {
+                const messageElement = document.createElement('div');
+                messageElement.className = 'text-center text-gray-500 text-sm py-2 fade-in';
+                messageElement.textContent = text;
+                messagesContainer.appendChild(messageElement);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+            
+            function updateUserList() {
+                userList.innerHTML = '';
+                users.forEach(user => {
+                    const userElement = document.createElement('div');
+                    userElement.className = 'flex items-center space-x-2 p-2 bg-gray-900 rounded';
+                    userElement.innerHTML = `
+                        <div class="w-3 h-3 rounded-full" style="background-color: ${user.color}"></div>
+                        <span>${user.nickname}</span>
+                    `;
+                    userList.appendChild(userElement);
+                });
+                
+                userCount.textContent = users.length;
+                activeUserCount.textContent = users.length;
+            }
+            
+            function updateCharCount() {
+                const length = messageInput.value.length;
+                charCount.textContent = `${length}/200`;
+                
+                if (length >= 180) {
+                    charCount.classList.add('text-red-500');
+                    charCount.classList.remove('text-gray-500');
+                } else {
+                    charCount.classList.remove('text-red-500');
+                    charCount.classList.add('text-gray-500');
+                }
+            }
+            
+            function toggleTheme() {
+                isDarkMode = !isDarkMode;
+                if (isDarkMode) {
+                    document.body.classList.add('bg-gray-900');
+                    document.body.classList.remove('bg-gray-100');
+                    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+                } else {
+                    document.body.classList.remove('bg-gray-900');
+                    document.body.classList.add('bg-gray-100');
+                    themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+                }
+            }
+            
+            // Utility functions
+            function generateId() {
+                return Math.random().toString(36).substr(2, 9);
+            }
+            
+            function getRandomColor() {
+                const colors = [
+                    '#FF5252', '#FF4081', '#E040FB', '#7C4DFF', 
+                    '#536DFE', '#448AFF', '#40C4FF', '#18FFFF', 
+                    '#64FFDA', '#69F0AE', '#B2FF59', '#EEFF41', 
+                    '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40'
+                ];
+                return colors[Math.floor(Math.random() * colors.length)];
+            }
 
-        // [Rest of the JavaScript remains the same]
+            // Streaming functionality
+            const startStreamBtn = document.getElementById('startStreamBtn');
+            const stopStreamBtn = document.getElementById('stopStreamBtn');
+            const requestViewBtn = document.getElementById('requestViewBtn');
+            const stopViewingBtn = document.getElementById('stopViewingBtn');
+            const localStream = document.getElementById('localStream');
+            const remoteStream = document.getElementById('remoteStream');
+            const localStreamContainer = document.getElementById('localStreamContainer');
+            const remoteStreamContainer = document.getElementById('remoteStreamContainer');
+            const remoteStreamerName = document.getElementById('remoteStreamerName');
+            let localMediaStream = null;
+            let isStreaming = false;
+
+            // Event listeners for streaming
+            startStreamBtn.addEventListener('click', startStreaming);
+            stopStreamBtn.addEventListener('click', stopStreaming);
+            requestViewBtn.addEventListener('click', requestView);
+            stopViewingBtn.addEventListener('click', stopViewing);
+
+            async function startStreaming() {
+                try {
+                    localMediaStream = await navigator.mediaDevices.getUserMedia({ 
+                        video: true, 
+                        audio: true 
+                    });
+                    localStream.srcObject = localMediaStream;
+                    localStreamContainer.classList.remove('hidden');
+                    startStreamBtn.classList.add('hidden');
+                    isStreaming = true;
+                    addSystemMessage('You started streaming');
+                } catch (err) {
+                    console.error('Error accessing media devices:', err);
+                    alert('Could not access camera/microphone');
+                }
+            }
+
+            function stopStreaming() {
+                if (localMediaStream) {
+                    localMediaStream.getTracks().forEach(track => track.stop());
+                    localStream.srcObject = null;
+                    localStreamContainer.classList.add('hidden');
+                    startStreamBtn.classList.remove('hidden');
+                    isStreaming = false;
+                    addSystemMessage('You stopped streaming');
+                }
+            }
+
+            function requestView() {
+                if (!currentUser) return;
+                
+                // In a real app, this would send a request to the server
+                // For demo, we'll just show a message
+                addSystemMessage('View request sent to streamers');
+                alert('View request sent to available streamers. When someone accepts, their stream will appear here.');
+            }
+
+            function stopViewing() {
+                if (remoteStream.srcObject) {
+                    remoteStream.srcObject.getTracks().forEach(track => track.stop());
+                    remoteStream.srcObject = null;
+                }
+                remoteStreamContainer.classList.add('hidden');
+                addSystemMessage('You stopped viewing the stream');
+            }
+
+            // Simulate receiving a stream (for demo purposes)
+            function simulateStreamOffer(streamer) {
+                if (!confirm(`${streamer.nickname} is streaming. Would you like to view their stream?`)) {
+                    return;
+                }
+
+                // In a real app, this would connect to the actual stream
+                remoteStreamerName.textContent = `${streamer.nickname}'s Stream`;
+                remoteStreamContainer.classList.remove('hidden');
+                addSystemMessage(`You are now viewing ${streamer.nickname}'s stream`);
+                
+                // For demo, we'll just use the local stream (replace with actual stream in real app)
+                if (localMediaStream) {
+                    remoteStream.srcObject = localMediaStream;
+                } else {
+                    // Fallback for demo
+                    remoteStream.srcObject = new MediaStream();
+                }
+            }
+            
+        });
     </script>
-</body>
+<p style="border-radius: 8px; text-align: center; font-size: 12px; color: #fff; margin-top: 16px;position: fixed; left: 8px; bottom: 8px; z-index: 10; background: rgba(0, 0, 0, 0.8); padding: 4px 8px;">Made with <img src="https://enzostvs-deepsite.hf.space/logo.svg" alt="DeepSite Logo" style="width: 16px; height: 16px; vertical-align: middle;display:inline-block;margin-right:3px;filter:brightness(0) invert(1);"><a href="https://enzostvs-deepsite.hf.space" style="color: #fff;text-decoration: underline;" target="_blank" >DeepSite</a> - 🧬 <a href="https://enzostvs-deepsite.hf.space?remix=Naruaa/lyn-chatroom-2-0" style="color: #fff;text-decoration: underline;" target="_blank" >Remix</a></p></body>
 </html>

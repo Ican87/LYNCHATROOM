@@ -1,8 +1,8 @@
 ---
-title: lynchat
+title: lyn-chatroom-2-0
 emoji: 🐳
-colorFrom: yellow
-colorTo: yellow
+colorFrom: green
+colorTo: blue
 sdk: static
 pinned: false
 tags:
