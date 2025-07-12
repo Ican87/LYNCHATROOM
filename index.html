@@ -392,6 +392,9 @@
                 <button id="startStreamBtn" class="cyberpunk-btn px-2 py-1 rounded text-[10px] md:px-3 md:text-sm mr-2">
                     <i class="fas fa-video mr-1"></i> <span class="hidden md:inline">STREAM</span>
                 </button>
+                <button id="requestStreamBtn" class="cyberpunk-btn px-2 py-1 rounded text-[10px] md:px-3 md:text-sm mr-2">
+                    <i class="fas fa-eye mr-1"></i> <span class="hidden md:inline">REQUEST VIEW</span>
+                </button>
                 <button id="clearChatBtn" class="cyberpunk-btn px-2 py-1 rounded text-[10px] md:px-3 md:text-sm mr-2">
                     <i class="fas fa-trash mr-1"></i> <span class="hidden md:inline">CLEAR</span>
                 </button>
@@ -772,6 +775,83 @@
                 createPeerConnection(response.from);
             } else {
                 addSystemMessage(`@${response.from} denied your camera access request`);
+            }
+            snapshot.ref.remove();
+        });
+
+        // DOM Elements for stream request
+        const requestStreamBtn = document.getElementById('requestStreamBtn');
+        const requestStreamModal = document.getElementById('requestStreamModal');
+        const cancelStreamRequestBtn = document.getElementById('cancelStreamRequestBtn');
+        const confirmStreamRequestBtn = document.getElementById('confirmStreamRequestBtn');
+        const streamUserSelect = document.getElementById('streamUserSelect');
+
+        // Show stream request modal
+        requestStreamBtn.addEventListener('click', () => {
+            // Populate user dropdown
+            streamUserSelect.innerHTML = '';
+            database.ref('users').once('value').then(snapshot => {
+                snapshot.forEach(userSnapshot => {
+                    if (userSnapshot.key !== username) {
+                        const option = document.createElement('option');
+                        option.value = userSnapshot.key;
+                        option.textContent = `@${userSnapshot.key}`;
+                        streamUserSelect.appendChild(option);
+                    }
+                });
+                requestStreamModal.classList.remove('hidden');
+            });
+        });
+
+        // Cancel stream request
+        cancelStreamRequestBtn.addEventListener('click', () => {
+            requestStreamModal.classList.add('hidden');
+        });
+
+        // Send stream request
+        confirmStreamRequestBtn.addEventListener('click', () => {
+            const targetUser = streamUserSelect.value;
+            if (targetUser) {
+                database.ref(`streamRequests/${username}_${targetUser}`).set({
+                    from: username,
+                    to: targetUser,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                addSystemMessage(`Stream request sent to @${targetUser}`);
+                requestStreamModal.classList.add('hidden');
+            }
+        });
+
+        // Listen for stream requests
+        database.ref('streamRequests').orderByChild('to').equalTo(username).on('child_added', snapshot => {
+            const request = snapshot.val();
+            if (confirm(`@${request.from} wants to view your stream. Allow this request?`)) {
+                // User accepted the request
+                database.ref(`streamResponses/${request.from}_${username}`).set({
+                    allowed: true,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                addSystemMessage(`You allowed stream access for @${request.from}`);
+            } else {
+                // User denied the request
+                database.ref(`streamResponses/${request.from}_${username}`).set({
+                    allowed: false,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                addSystemMessage(`You denied stream access for @${request.from}`);
+            }
+            // Remove the request
+            snapshot.ref.remove();
+        });
+
+        // Listen for responses to our stream requests
+        database.ref('streamResponses').orderByChild('to').equalTo(username).on('child_added', snapshot => {
+            const response = snapshot.val();
+            if (response.allowed) {
+                addSystemMessage(`@${response.from} has granted your stream request`);
+                // Here you would typically connect to view their stream
+            } else {
+                addSystemMessage(`@${response.from} denied your stream request`);
             }
             snapshot.ref.remove();
         });
