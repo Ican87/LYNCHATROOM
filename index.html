@@ -403,15 +403,27 @@
             <!-- Stream Container -->
             <div id="streamContainer" class="hidden p-4 border-b border-green-500">
                 <div class="cyberpunk-box p-2">
-                    <video id="localStreamVideo" class="w-full" autoplay playsinline muted></video>
-                    <div id="remoteStreams" class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4"></div>
-                    <div class="flex justify-between mt-2">
+                    <div class="flex justify-between items-center mb-2">
                         <div class="text-xs text-green-400">
-                            <span id="streamStatus">LIVE STREAM</span>
+                            <span id="streamStatus">LIVE STREAMS</span>
                         </div>
                         <button id="stopStreamBtn" class="cyberpunk-btn px-2 py-1 rounded text-xs">
-                            <i class="fas fa-stop mr-1"></i> STOP
+                            <i class="fas fa-stop mr-1"></i> STOP STREAM
                         </button>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="cyberpunk-box p-2">
+                            <div class="flex justify-between items-center mb-1">
+                                <div class="text-xs text-green-400">YOUR STREAM</div>
+                                <div class="text-xs text-gray-400">
+                                    <i class="fas fa-circle text-red-500 mr-1"></i> LIVE
+                                </div>
+                            </div>
+                            <video id="localStreamVideo" class="w-full rounded" autoplay playsinline muted></video>
+                        </div>
+                        <div id="remoteStreams" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Remote streams will appear here -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -699,6 +711,12 @@
                 startStreamBtn.classList.add('hidden');
                 addSystemMessage(`@${username} STARTED A LIVE STREAM`);
                 
+                // Broadcast stream availability
+                database.ref(`streams/${username}`).set({
+                    active: true,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                
                 // Create peer connection for each existing user
                 database.ref('users').once('value').then(snapshot => {
                     snapshot.forEach(userSnapshot => {
@@ -734,9 +752,15 @@
                 // Clear remote streams
                 document.getElementById('remoteStreams').innerHTML = '';
                 
+                // Update stream status
+                database.ref(`streams/${username}`).remove();
+                
                 streamContainer.classList.add('hidden');
                 startStreamBtn.classList.remove('hidden');
                 addSystemMessage(`@${username} ENDED THE STREAM`);
+                
+                // Update UI
+                streamStatus.textContent = 'NO ACTIVE STREAMS';
             }
         });
         
@@ -808,54 +832,72 @@
             });
         }
         
-        // Listen for incoming streams
-        database.ref('users').on('child_added', userSnapshot => {
-            if (userSnapshot.key !== username) {
-                database.ref(`signaling/${userSnapshot.key}/${username}/offer`).on('value', snapshot => {
-                    const data = snapshot.val();
-                    if (data && !peerConnections[userSnapshot.key]) {
-                        const peerConnection = new RTCPeerConnection(configuration);
-                        peerConnections[userSnapshot.key] = peerConnection;
-                        
-                        peerConnection.onicecandidate = event => {
-                            if (event.candidate) {
-                                database.ref(`signaling/${username}/${userSnapshot.key}/candidates`).push({
-                                    candidate: event.candidate
-                                });
-                            }
-                        };
-                        
-                        peerConnection.ontrack = event => {
-                            const remoteStreamsDiv = document.getElementById('remoteStreams');
-                            const existingVideo = document.getElementById(`remoteVideo_${userSnapshot.key}`);
-                            
-                            if (!existingVideo) {
-                                const video = document.createElement('video');
-                                video.id = `remoteVideo_${userSnapshot.key}`;
-                                video.className = 'w-full';
-                                video.autoplay = true;
-                                video.playsInline = true;
-                                
-                                const userDiv = document.createElement('div');
-                                userDiv.className = 'cyberpunk-box p-2';
-                                userDiv.innerHTML = `<div class="text-xs text-green-400 mb-1">@${userSnapshot.key}</div>`;
-                                userDiv.appendChild(video);
-                                
-                                remoteStreamsDiv.appendChild(userDiv);
-                                video.srcObject = event.streams[0];
-                            }
-                        };
-                        
-                        peerConnection.setRemoteDescription(new RTCSessionDescription(data.sdp))
-                            .then(() => peerConnection.createAnswer())
-                            .then(answer => peerConnection.setLocalDescription(answer))
-                            .then(() => {
-                                database.ref(`signaling/${username}/${userSnapshot.key}/answer`).set({
-                                    sdp: peerConnection.localDescription
-                                });
-                            });
+        // Listen for active streams
+        database.ref('streams').on('child_added', streamSnapshot => {
+            const streamer = streamSnapshot.key;
+            if (streamer !== username && !peerConnections[streamer]) {
+                addSystemMessage(`@${streamer} IS NOW STREAMING LIVE`);
+                
+                // Create peer connection to view the stream
+                const peerConnection = new RTCPeerConnection(configuration);
+                peerConnections[streamer] = peerConnection;
+                
+                peerConnection.onicecandidate = event => {
+                    if (event.candidate) {
+                        database.ref(`signaling/${username}/${streamer}/candidates`).push({
+                            candidate: event.candidate
+                        });
                     }
+                };
+                
+                peerConnection.ontrack = event => {
+                    const remoteStreamsDiv = document.getElementById('remoteStreams');
+                    const existingVideo = document.getElementById(`remoteVideo_${streamer}`);
+                    
+                    if (!existingVideo) {
+                        const video = document.createElement('video');
+                        video.id = `remoteVideo_${streamer}`;
+                        video.className = 'w-full';
+                        video.autoplay = true;
+                        video.playsInline = true;
+                        
+                        const userDiv = document.createElement('div');
+                        userDiv.className = 'cyberpunk-box p-2';
+                        userDiv.innerHTML = `<div class="text-xs text-green-400 mb-1">@${streamer}'s STREAM</div>`;
+                        userDiv.appendChild(video);
+                        
+                        remoteStreamsDiv.appendChild(userDiv);
+                        video.srcObject = event.streams[0];
+                    }
+                };
+                
+                // Create offer to receive stream
+                peerConnection.createOffer({
+                    offerToReceiveVideo: true,
+                    offerToReceiveAudio: true
+                })
+                .then(offer => peerConnection.setLocalDescription(offer))
+                .then(() => {
+                    database.ref(`signaling/${username}/${streamer}/offer`).set({
+                        sdp: peerConnection.localDescription
+                    });
                 });
+            }
+        });
+
+        // Clean up when streams end
+        database.ref('streams').on('child_removed', streamSnapshot => {
+            const streamer = streamSnapshot.key;
+            if (peerConnections[streamer]) {
+                peerConnections[streamer].close();
+                delete peerConnections[streamer];
+                
+                const video = document.getElementById(`remoteVideo_${streamer}`);
+                if (video) {
+                    video.parentNode.remove();
+                }
+                
+                addSystemMessage(`@${streamer}'S STREAM HAS ENDED`);
             }
         });
         // Close chat and return to login
