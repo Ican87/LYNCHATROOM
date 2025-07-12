@@ -699,6 +699,83 @@
                     });
             }
         });
+        // Camera request modal
+        const requestModal = document.createElement('div');
+        requestModal.className = 'fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 hidden';
+        requestModal.innerHTML = `
+            <div class="cyberpunk-box bg-gray-900 p-6 rounded-lg max-w-md w-full">
+                <h3 class="text-xl mb-4 text-green-400">REQUEST CAMERA ACCESS</h3>
+                <input type="text" id="requestUsername" class="cyberpunk-input w-full mb-4" placeholder="Enter username">
+                <div class="flex justify-end space-x-2">
+                    <button id="cancelRequestBtn" class="cyberpunk-btn px-4 py-2">CANCEL</button>
+                    <button id="sendRequestBtn" class="cyberpunk-btn px-4 py-2 bg-green-600">SEND REQUEST</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(requestModal);
+
+        // Request camera access
+        const requestCameraBtn = document.getElementById('requestCameraBtn');
+        const cancelRequestBtn = document.getElementById('cancelRequestBtn');
+        const sendRequestBtn = document.getElementById('sendRequestBtn');
+        const requestUsername = document.getElementById('requestUsername');
+
+        requestCameraBtn.addEventListener('click', () => {
+            requestModal.classList.remove('hidden');
+        });
+
+        cancelRequestBtn.addEventListener('click', () => {
+            requestModal.classList.add('hidden');
+        });
+
+        sendRequestBtn.addEventListener('click', () => {
+            const targetUser = requestUsername.value.trim();
+            if (targetUser && targetUser !== username) {
+                database.ref(`requests/${username}_${targetUser}`).set({
+                    from: username,
+                    to: targetUser,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                addSystemMessage(`Camera access request sent to @${targetUser}`);
+                requestModal.classList.add('hidden');
+            }
+        });
+
+        // Listen for camera requests
+        database.ref('requests').orderByChild('to').equalTo(username).on('child_added', snapshot => {
+            const request = snapshot.val();
+            if (confirm(`@${request.from} wants to access your camera. Allow this request?`)) {
+                // User accepted the request
+                database.ref(`responses/${request.from}_${username}`).set({
+                    allowed: true,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                addSystemMessage(`You allowed camera access for @${request.from}`);
+            } else {
+                // User denied the request
+                database.ref(`responses/${request.from}_${username}`).set({
+                    allowed: false,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+                addSystemMessage(`You denied camera access for @${request.from}`);
+            }
+            // Remove the request
+            snapshot.ref.remove();
+        });
+
+        // Listen for responses to our requests
+        database.ref('responses').orderByChild('to').equalTo(username).on('child_added', snapshot => {
+            const response = snapshot.val();
+            if (response.allowed) {
+                addSystemMessage(`@${response.from} has granted your camera access request`);
+                // Here you would typically establish the WebRTC connection
+                createPeerConnection(response.from);
+            } else {
+                addSystemMessage(`@${response.from} denied your camera access request`);
+            }
+            snapshot.ref.remove();
+        });
+
         // Handle streaming
         startStreamBtn.addEventListener('click', async () => {
             try {
