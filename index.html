@@ -107,6 +107,12 @@
         
         .dragon-icon {
             animation: float 3s ease-in-out infinite;
+            width: 40px;
+            height: 40px;
+        }
+        
+        .dragon-icon svg {
+            filter: drop-shadow(0 0 2px #e63946);
         }
         
         @keyframes float {
@@ -132,7 +138,9 @@
     <!-- Header with Chinese Dragon Icon -->
     <header class="py-4 px-6 bg-black bg-opacity-80 border-b border-red-600 flex justify-between items-center">
         <div class="flex items-center space-x-2">
-            <i class="dragon-icon fas fa-dragon text-4xl text-red-500"></i>
+            <div class="dragon-icon">
+                <img src="logo.png" alt="LYN Logo" width="40" height="40">
+            </div>
             <h1 class="text-2xl font-bold neon-text">LYN CHATROOM<br><span class="text-sm">SKY Lounge</span></h1>
         </div>
         <div class="hidden md:flex space-x-4">
@@ -276,32 +284,24 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 
     <script>
-        // Firebase configuration
+        // Your Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC7zwrxJVZPxEfM9ulVOUJOSCnMjb1kyk0",
-            authDomain: "lynchat-f6fbc.firebaseapp.com",
-            databaseURL: "https://lynchat-f6fbc-default-rtdb.firebaseio.com",
-            projectId: "lynchat-f6fbc",
-            storageBucket: "lynchat-f6fbc.appspot.com",
-            messagingSenderId: "465251710149",
-            appId: "1:465251710149:web:e6243a6ca5de6754c1ecac",
-            measurementId: "G-LGDFQ5JK6G"
+  authDomain: "lynchat-f6fbc.firebaseapp.com",
+  databaseURL: "https://lynchat-f6fbc-default-rtdb.firebaseio.com",
+  projectId: "lynchat-f6fbc",
+  storageBucket: "lynchat-f6fbc.firebasestorage.app",
+  messagingSenderId: "465251710149",
+  appId: "1:465251710149:web:e6243a6ca5de6754c1ecac",
+  measurementId: "G-LGDFQ5JK6G"
         };
-
         // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        } else {
-            firebase.app(); // if already initialized, use that one
-        }
+        firebase.initializeApp(firebaseConfig);
         
         // Get Firebase services
         const db = firebase.firestore();
         const auth = firebase.auth();
         const storage = firebase.storage();
-        const usersRef = db.collection('users');
-        const messagesRef = db.collection('messages');
-
         document.addEventListener('DOMContentLoaded', function() {
             // DOM Elements
             const loginForm = document.getElementById('loginForm');
@@ -342,7 +342,7 @@
             themeToggle.addEventListener('click', toggleTheme);
             
             // Functions
-            async function joinChat() {
+            function joinChat() {
                 const nickname = nicknameInput.value.trim();
                 const instagram = instagramInput.value.trim();
                 
@@ -364,37 +364,22 @@
                     return;
                 }
                 
+                currentUser = {
+                    id: generateId(),
+                    nickname: nickname,
+                    instagram: instagram,
+                    color: getRandomColor()
+                };
+                
                 // Disable join button during processing
-                const originalButtonText = joinChatBtn.innerHTML;
                 joinChatBtn.disabled = true;
                 joinChatBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Joining...';
-                joinChatBtn.classList.add('opacity-75');
                 
-                try {
-                    // Check if nickname already exists
-                    const snapshot = await usersRef.where('nickname', '==', nickname).get();
-                    if (!snapshot.empty) {
-                        alert('Nickname already in use. Please choose another one.');
-                        joinChatBtn.disabled = false;
-                        joinChatBtn.innerHTML = '<i class="fas fa-door-open mr-2"></i> Join Chatroom';
-                        return;
-                    }
-                    
-                    // Create user in Firestore
-                    const userRef = await usersRef.add({
-                        nickname: nickname,
-                        instagram: instagram,
-                        color: getRandomColor(),
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        isOnline: true
-                    });
-                    
-                    currentUser = {
-                        id: userRef.id,
-                        nickname: nickname,
-                        instagram: instagram,
-                        color: getRandomColor()
-                    };
+                // Simulate network delay (remove in production)
+                setTimeout(() => {
+                    // Add user to chat
+                    users.push(currentUser);
+                    updateUserList();
                     
                     // Show chat interface
                     loginForm.classList.add('hidden');
@@ -402,68 +387,19 @@
                     document.getElementById('onlineUsers').classList.remove('hidden');
                     
                     // Add welcome message
-                    await messagesRef.add({
-                        text: `${currentUser.nickname} joined the chat`,
-                        type: 'system',
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
+                    addSystemMessage(`${currentUser.nickname} joined the chat`);
+                    addSystemMessage(`Welcome to LYN ChatRoom, ${currentUser.nickname}!`);
                     
-                    await messagesRef.add({
-                        text: `Welcome to LYN ChatRoom, ${currentUser.nickname}!`,
-                        type: 'system',
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    // Set up realtime listeners
-                    setupListeners();
-                    
-                } catch (error) {
-                    console.error('Error joining chat:', error);
-                    alert('Failed to join chat. Please try again.');
                     // Reset join button
                     joinChatBtn.disabled = false;
-                    joinChatBtn.innerHTML = originalButtonText;
-                    joinChatBtn.classList.remove('opacity-75');
-                    return;
-                }
-                
-                // Reset join button on success
-                joinChatBtn.disabled = false;
-                joinChatBtn.innerHTML = '<i class="fas fa-door-open mr-2"></i> Join Chatroom';
-                joinChatBtn.classList.remove('opacity-75');
-                
-                // Focus message input
-                messageInput.focus();
+                    joinChatBtn.innerHTML = '<i class="fas fa-door-open mr-2"></i> Join Chatroom';
+                    
+                    // Focus message input
+                    messageInput.focus();
+                }, 1000);
             }
             
-            function setupListeners() {
-                // Listen for new messages
-                messagesRef.orderBy('timestamp').onSnapshot(snapshot => {
-                    snapshot.docChanges().forEach(change => {
-                        if (change.type === 'added') {
-                            const message = change.doc.data();
-                            displayMessage({
-                                id: change.doc.id,
-                                ...message
-                            });
-                        }
-                    });
-                });
-                
-                // Listen for online users
-                usersRef.where('isOnline', '==', true).onSnapshot(snapshot => {
-                    users = [];
-                    snapshot.forEach(doc => {
-                        users.push({
-                            id: doc.id,
-                            ...doc.data()
-                        });
-                    });
-                    updateUserList();
-                });
-            }
-            
-            async function leaveChat() {
+            function leaveChat() {
                 if (!currentUser) return;
                 
                 // Confirm before leaving
@@ -498,29 +434,26 @@
                 }, 500);
             }
             
-            async function sendMessage() {
+            function sendMessage() {
                 const messageText = messageInput.value.trim();
                 if (!messageText || !currentUser) return;
                 
-                try {
-                    await messagesRef.add({
-                        userId: currentUser.id,
-                        text: messageText,
-                        nickname: currentUser.nickname,
-                        color: currentUser.color,
-                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                    });
-                    
-                    // Clear input
-                    messageInput.value = '';
-                    updateCharCount();
-                    
-                    // Scroll to bottom
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                } catch (error) {
-                    console.error('Error sending message:', error);
-                    alert('Failed to send message. Please try again.');
-                }
+                const message = {
+                    id: generateId(),
+                    userId: currentUser.id,
+                    text: messageText,
+                    timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                };
+                
+                messages.push(message);
+                displayMessage(message);
+                
+                // Clear input
+                messageInput.value = '';
+                updateCharCount();
+                
+                // Scroll to bottom
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
             }
             
             function displayMessage(message) {
@@ -608,7 +541,6 @@
                 ];
                 return colors[Math.floor(Math.random() * colors.length)];
             }
-
             // Streaming functionality
             const startStreamBtn = document.getElementById('startStreamBtn');
             const stopStreamBtn = document.getElementById('stopStreamBtn');
@@ -621,13 +553,11 @@
             const remoteStreamerName = document.getElementById('remoteStreamerName');
             let localMediaStream = null;
             let isStreaming = false;
-
             // Event listeners for streaming
             startStreamBtn.addEventListener('click', startStreaming);
             stopStreamBtn.addEventListener('click', stopStreaming);
             requestViewBtn.addEventListener('click', requestView);
             stopViewingBtn.addEventListener('click', stopViewing);
-
             async function startStreaming() {
                 try {
                     localMediaStream = await navigator.mediaDevices.getUserMedia({ 
@@ -644,7 +574,6 @@
                     alert('Could not access camera/microphone');
                 }
             }
-
             function stopStreaming() {
                 if (localMediaStream) {
                     localMediaStream.getTracks().forEach(track => track.stop());
@@ -655,7 +584,6 @@
                     addSystemMessage('You stopped streaming');
                 }
             }
-
             function requestView() {
                 if (!currentUser) return;
                 
@@ -664,7 +592,6 @@
                 addSystemMessage('View request sent to streamers');
                 alert('View request sent to available streamers. When someone accepts, their stream will appear here.');
             }
-
             function stopViewing() {
                 if (remoteStream.srcObject) {
                     remoteStream.srcObject.getTracks().forEach(track => track.stop());
@@ -673,13 +600,11 @@
                 remoteStreamContainer.classList.add('hidden');
                 addSystemMessage('You stopped viewing the stream');
             }
-
             // Simulate receiving a stream (for demo purposes)
             function simulateStreamOffer(streamer) {
                 if (!confirm(`${streamer.nickname} is streaming. Would you like to view their stream?`)) {
                     return;
                 }
-
                 // In a real app, this would connect to the actual stream
                 remoteStreamerName.textContent = `${streamer.nickname}'s Stream`;
                 remoteStreamContainer.classList.remove('hidden');
