@@ -365,8 +365,10 @@
                 }
                 
                 // Disable join button during processing
+                const originalButtonText = joinChatBtn.innerHTML;
                 joinChatBtn.disabled = true;
                 joinChatBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Joining...';
+                joinChatBtn.classList.add('opacity-75');
                 
                 try {
                     // Check if nickname already exists
@@ -418,14 +420,20 @@
                 } catch (error) {
                     console.error('Error joining chat:', error);
                     alert('Failed to join chat. Please try again.');
-                } finally {
                     // Reset join button
                     joinChatBtn.disabled = false;
-                    joinChatBtn.innerHTML = '<i class="fas fa-door-open mr-2"></i> Join Chatroom';
-                    
-                    // Focus message input
-                    messageInput.focus();
+                    joinChatBtn.innerHTML = originalButtonText;
+                    joinChatBtn.classList.remove('opacity-75');
+                    return;
                 }
+                
+                // Reset join button on success
+                joinChatBtn.disabled = false;
+                joinChatBtn.innerHTML = '<i class="fas fa-door-open mr-2"></i> Join Chatroom';
+                joinChatBtn.classList.remove('opacity-75');
+                
+                // Focus message input
+                messageInput.focus();
             }
             
             function setupListeners() {
