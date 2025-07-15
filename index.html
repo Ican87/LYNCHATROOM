@@ -301,6 +301,13 @@
         const storage = firebase.storage();
 
         document.addEventListener('DOMContentLoaded', function() {
+    const joinChatBtn = document.getElementById('joinChat');
+    if (joinChatBtn) {
+        joinChatBtn.addEventListener('click', joinChat);
+        console.log("Join button event listener registered"); // Debug log
+    } else {
+        console.error("Join button not found!"); // Debug log
+    }
             // DOM Elements
             const loginForm = document.getElementById('loginForm');
             const chatInterface = document.getElementById('chatInterface');
