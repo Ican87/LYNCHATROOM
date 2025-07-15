@@ -180,7 +180,7 @@
             <div class="flex-1 flex flex-col bg-black bg-opacity-70 rounded-lg led-border overflow-hidden">
                 <!-- Chat Header -->
                 <div class="bg-black bg-opacity-80 p-3 border-b border-red-600 flex justify-between items-center">
-                    <h2 class="text-lg font-bold text-yellow-400 neon-text">群聊</h2>
+                    <h2 class="text-lg font-bold text-yellow-400 neon-text">LIVE</h2>
                     <div class="flex items-center space-x-3">
                         <span class="text-sm text-red-400"><i class="fas fa-users mr-1"></i> <span id="activeUserCount">0</span> online</span>
                         <button id="leaveChat" class="text-sm text-gray-300 hover:text-red-500 transition">
@@ -195,7 +195,7 @@
                     <div class="text-center py-10 text-gray-500">
                         <i class="fas fa-comments text-4xl mb-2"></i>
                         <p>Welcome to LYN ChatRoom</p>
-                        <p class="text-sm mt-2">Start your conversation</p>
+                        <p class="text-sm mt-2">Waiting for other users to connect...</p>
                     </div>
                 </div>
                 
@@ -216,7 +216,8 @@
             
             <!-- Online Users -->
             <div id="onlineUsers" class="mt-4 bg-black bg-opacity-70 p-4 rounded-lg led-border hidden md:block">
-                <h3 class="text-lg font-bold text-yellow-400 mb-3 neon-text">Online Users</h3>
+                <h3 class="text-lg font-bold text-yellow-400 mb-3 neon-text">Connecting Users</h3>
+                <p class="text-sm text-gray-400 mb-2">Other users are connecting to the chat...</p>
                 <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2" id="userList">
                     <!-- Online users will be added here -->
                 </div>
@@ -371,7 +372,7 @@
                 document.getElementById('onlineUsers').classList.remove('hidden');
                 
                 // Add welcome message
-                addSystemMessage(`${currentUser.nickname} joined the chat`);
+                addSystemMessage(`${currentUser.nickname} joined the chat (connecting to others...)`);
             }
             
             function leaveChat() {
@@ -426,7 +427,7 @@
                 
                 messageElement.innerHTML = `
                     <div class="max-w-xs md:max-w-md lg:max-w-lg rounded-lg p-3 ${isCurrentUser ? 'bg-red-900 bg-opacity-50' : 'bg-gray-800'}">
-                        ${!isCurrentUser ? `<div class="font-bold" style="color: ${user.color}">${user.nickname}</div>` : ''}
+                        <div class="font-bold" style="color: ${user.color}">${user.nickname}</div>
                         <div class="mt-1">${message.text}</div>
                         <div class="text-xs text-gray-400 mt-1 text-right">${message.timestamp}</div>
                     </div>
@@ -451,6 +452,7 @@
                     userElement.innerHTML = `
                         <div class="w-3 h-3 rounded-full" style="background-color: ${user.color}"></div>
                         <span>${user.nickname}</span>
+                        <span class="text-xs text-gray-500 ml-auto">(connecting...)</span>
                     `;
                     userList.appendChild(userElement);
                 });
