@@ -340,18 +340,21 @@
                 const nickname = nicknameInput.value.trim();
                 const instagram = instagramInput.value.trim();
                 
-                if (!nickname) {
-                    alert('Please enter a nickname');
+                if (!nickname || nickname.length < 3) {
+                    alert('Please enter a valid nickname (min 3 characters)');
+                    nicknameInput.focus();
                     return;
                 }
                 
-                if (!instagram) {
-                    alert('Please enter your Instagram username');
+                if (!instagram || instagram.length < 3) {
+                    alert('Please enter a valid Instagram username (min 3 characters)');
+                    instagramInput.focus();
                     return;
                 }
                 
                 if (!followCheck.checked) {
-                    alert('Please confirm you follow @exvisuites on Instagram');
+                    alert('Please confirm you follow @exvisuites on Instagram to join');
+                    followCheck.focus();
                     return;
                 }
                 
@@ -362,36 +365,67 @@
                     color: getRandomColor()
                 };
                 
-                // Simulate adding user to chat
-                users.push(currentUser);
-                updateUserList();
+                // Disable join button during processing
+                joinChatBtn.disabled = true;
+                joinChatBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Joining...';
                 
-                // Show chat interface
-                loginForm.classList.add('hidden');
-                chatInterface.classList.remove('hidden');
-                document.getElementById('onlineUsers').classList.remove('hidden');
-                
-                // Add welcome message
-                addSystemMessage(`${currentUser.nickname} joined the chat (connecting to others...)`);
+                // Simulate network delay (remove in production)
+                setTimeout(() => {
+                    // Add user to chat
+                    users.push(currentUser);
+                    updateUserList();
+                    
+                    // Show chat interface
+                    loginForm.classList.add('hidden');
+                    chatInterface.classList.remove('hidden');
+                    document.getElementById('onlineUsers').classList.remove('hidden');
+                    
+                    // Add welcome message
+                    addSystemMessage(`${currentUser.nickname} joined the chat`);
+                    addSystemMessage(`Welcome to LYN ChatRoom, ${currentUser.nickname}!`);
+                    
+                    // Reset join button
+                    joinChatBtn.disabled = false;
+                    joinChatBtn.innerHTML = '<i class="fas fa-door-open mr-2"></i> Join Chatroom';
+                    
+                    // Focus message input
+                    messageInput.focus();
+                }, 1000);
             }
             
             function leaveChat() {
                 if (!currentUser) return;
                 
-                // Simulate removing user from chat
-                users = users.filter(user => user.id !== currentUser.id);
-                updateUserList();
+                // Confirm before leaving
+                if (!confirm('Are you sure you want to leave the chat?')) {
+                    return;
+                }
                 
-                // Add leave message
-                addSystemMessage(`${currentUser.nickname} left the chat`);
-                
-                // Show login form
-                chatInterface.classList.add('hidden');
-                loginForm.classList.remove('hidden');
-                document.getElementById('onlineUsers').classList.add('hidden');
-                
-                // Reset current user
-                currentUser = null;
+                // Simulate network delay (remove in production)
+                setTimeout(() => {
+                    // Remove user from chat
+                    users = users.filter(user => user.id !== currentUser.id);
+                    updateUserList();
+                    
+                    // Add leave message
+                    addSystemMessage(`${currentUser.nickname} left the chat`);
+                    
+                    // Show login form
+                    chatInterface.classList.add('hidden');
+                    loginForm.classList.remove('hidden');
+                    document.getElementById('onlineUsers').classList.add('hidden');
+                    
+                    // Reset inputs
+                    nicknameInput.value = '';
+                    instagramInput.value = '';
+                    followCheck.checked = false;
+                    
+                    // Reset current user
+                    currentUser = null;
+                    
+                    // Focus nickname input
+                    nicknameInput.focus();
+                }, 500);
             }
             
             function sendMessage() {
